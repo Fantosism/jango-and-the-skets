@@ -1,45 +1,66 @@
-import tdl
+import tcod
+import libtcodpy as libtcod
 
-screen_width = 80
-screen_height = 50
-limit_fps = 20
-
-console = tdl.init(screen_width, screen_height,
-                   title="Jango and the Skets", fullscreen=False)
-
-tdl.setFPS(limit_fps)
-
-while not tdl.event.is_window_closed():
-    console.draw_char(1, 1, "@", bg=None, fg=(255, 255, 255))
-    tdl.flush()
-
-playerx = screen_width//2
-playery = screen_height//2
+from entity import Entity
+from input_handlers import handle_keys
+from map_objects.game_map import GameMap
+from render_functions import clear_all, render_all
 
 
-def handle_keys():
-    global playerx, playery
+def main():
+    screen_width = 80
+    screen_height = 50
+    map_width = 80
+    map_height = 45
 
-    user_input = tdl.event.key_wait()
+    colors = {
+        'dark_wall': libtcod.Color(0, 0, 100),
+        'dark_ground': libtcod.Color(50, 50, 150)
+    }
 
-    # fullscreen mode
-    if user_input.key == 'ENTER' and user_input.alt:
-        # Alt + Enter
-        tdl.set_fullscreen(not tdl.get_fullscreen())
+    player = Entity(int(screen_width / 2),
+                    int(screen_height / 2), "@", libtcod.white)
+    npc = Entity(int(screen_width / 2 - 5),
+                 int(screen_height / 2), "@", libtcod.yellow)
+    entities = [npc, player]
 
-    # Exit game
-    elif user_input.key == 'ESCAPE':
-        return True
+    tcod.console_set_custom_font(
+        'consolas10x10_gs_tc.png', tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD)
 
-    # movement keys
-    if user_input.key == 'UP':
-        plaery -= 1
+    tcod.console_init_root(
+        screen_width, screen_height, 'Jango and the Skets', False)
 
-    elif user_input.key == 'DOWN':
-        player += 1
+    con = libtcod.console_new(screen_width, screen_height)
 
-    elif user_input.key == 'LEFT':
-        playerx -= 1
+    game_map = GameMap(map_width, map_height)
 
-    elif user_input.key == 'RIGHT':
-        playerx += 1
+    key = libtcod.Key()
+    mouse = libtcod.Mouse()
+
+    while not libtcod.console_is_window_closed():
+        libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
+        render_all(con, entities, game_map,
+                   screen_width, screen_height, colors)
+        libtcod.console_flush()
+
+        clear_all(con, entities)
+
+        action = handle_keys(key)
+        move = action.get('move')
+        exit = action.get('exit')
+        fullscreen = action.get('fullscreen')
+
+        if move:
+            dx, dy = move
+            if not game_map.is_blocked(player.x + dx, player.y + dy):
+                player.move(dx, dy)
+
+        if exit:
+            return True
+
+        if fullscreen:
+            libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
+
+
+if __name__ == '__main__':
+    main()
