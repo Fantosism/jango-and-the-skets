@@ -60,7 +60,7 @@ class GameMap:
 
                     # center coordinates of previous room
                     (prev_x, prev_y) = rooms[num_rooms - 1].center()
-
+ 
                     # Coin flip
                     if randint(0, 1) == 1:
                         # first move horizontally than vertically
