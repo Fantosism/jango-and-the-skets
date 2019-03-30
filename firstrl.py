@@ -15,7 +15,7 @@ def main():
     screen_width = 80
     screen_height = 50
     map_width = 80
-    map_height = 45
+    map_height = 43
     room_max_size = 10
     room_min_size = 6
     max_rooms = 30
@@ -54,6 +54,7 @@ def main():
     tcod.console_init_root(screen_width, screen_height, "Jango and the Skets", False)
 
     con = libtcod.console_new(screen_width, screen_height)
+    panel = libtcod.console.new(screen_width, panel_height)
 
     game_map = GameMap(map_width, map_height)
     game_map.make_map(
@@ -85,6 +86,7 @@ def main():
 
         render_all(
             con,
+            panel,
             entities,
             player,
             game_map,
@@ -92,6 +94,9 @@ def main():
             fov_recompute,
             screen_width,
             screen_height,
+            bar_width,
+            panel_height,
+            panel_y,
             colors,
         )
         fov_recompute = False
