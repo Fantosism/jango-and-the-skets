@@ -103,3 +103,18 @@ def handle_inventory_keys(key):
         return {"exit": True}
 
     return {}
+
+
+def handle_main_menu(key):
+    key_char = chr(key.c)
+
+    if key_char == "a":
+        return {"new_game": True}
+
+    if key_char == "b":
+        return {"load_game": True}
+
+    if key_char == "c":
+        return {"exit": True}
+
+    return {}
